@@ -10,3 +10,7 @@ export function getInputParams(): InputParameters {
     token: getInput('token')
   }
 }
+
+export function isSupportedEvent(event: string, action: string): boolean {
+  return event === 'pull_request' && action === 'opened'
+}
