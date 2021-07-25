@@ -2,19 +2,20 @@ import core from '@actions/core'
 import {getOctokit, context} from '@actions/github'
 import type {PullRequestOpenedEvent} from '@octokit/webhooks-types'
 
-import {getInputParams} from './utils'
+import {getInputParams, isSupportedEvent} from './utils'
 
 async function run(): Promise<void> {
-  const eventName = context.eventName
+  const {eventName, action} = context
   const {owner, repo} = context.repo
-  const event = context.payload.pull_request as PullRequestOpenedEvent
   const {token} = getInputParams()
-  const octokit = getOctokit(token)
+  const octokit = getOctokit(token, {userAgent: 'dylanferguson/lgtm-action@v1'})
 
-  if (eventName !== 'pull_request' && event.action !== 'opened') {
-    core.warning(`Event not supported: ${eventName}, ${event.action}`)
+  if (!isSupportedEvent(eventName, action)) {
+    core.warning(`Event not supported: ${eventName}, action: ${action}`)
     return
   }
+
+  const event = context.payload.pull_request as PullRequestOpenedEvent
 
   await octokit.rest.pulls.createReview({
     owner,
