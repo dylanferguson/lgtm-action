@@ -1,19 +1,47 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import core from '@actions/core'
+import {getOctokit, context} from '@actions/github'
+import type {PullRequestOpenedEvent} from '@octokit/webhooks-types'
+
+import {getInputParams} from './utils'
 
 async function run(): Promise<void> {
-  try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+  const eventName = context.eventName
+  const {owner, repo} = context.repo
+  const event = context.payload.pull_request as PullRequestOpenedEvent
+  const {token} = getInputParams()
+  const octokit = getOctokit(token)
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    core.setFailed(error.message)
+  if (eventName !== 'pull_request' && event.action !== 'opened') {
+    core.warning(`Event not supported: ${eventName}, ${event.action}`)
+    return
   }
+
+  await octokit.rest.pulls.createReview({
+    owner,
+    repo,
+    pull_number: event.number,
+    event: 'APPROVE',
+    body: 'LGTM!'
+  })
+
+  const {data: pullRequest} = await octokit.rest.pulls.get({
+    owner,
+    repo,
+    pull_number: event.number
+  })
+
+  if (!pullRequest.mergeable) {
+    core.warning('Pull request cannot be merged')
+    return
+  }
+
+  await octokit.rest.pulls.merge({
+    owner,
+    repo,
+    pull_number: event.number
+  })
 }
 
-run()
+run().catch(err => {
+  core.setFailed(err.message)
+})

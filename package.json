@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "lgtm-action",
+  "version": "0.1.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Move fast, break all the things",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,19 +15,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/dylanferguson/lgtm-action.git"
   },
-  "keywords": [
-    "actions",
-    "node",
-    "setup"
-  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.4.0"
+    "@actions/core": "^1.4.0",
+    "@actions/github": "^5.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "^27.0.6",
+    "@octokit/webhooks-types": "^4.2.1",
+    "@types/jest": "^26.0.24",
     "@types/node": "^16.3.3",
     "@typescript-eslint/parser": "^4.28.3",
     "@vercel/ncc": "^0.29.0",
