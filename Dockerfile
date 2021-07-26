@@ -1,4 +1,4 @@
-ARG TAG=16-buster-slim
+ARG TAG=12-buster-slim
 FROM node:$TAG
 
 WORKDIR /app

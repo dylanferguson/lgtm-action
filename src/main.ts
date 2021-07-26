@@ -2,7 +2,7 @@ import core from '@actions/core'
 import {getOctokit, context} from '@actions/github'
 import type {PullRequestOpenedEvent} from '@octokit/webhooks-types'
 
-import {getInputParams, isSupportedEvent, wait} from './utils'
+import {getInputParams, isSupportedEvent} from './utils'
 
 async function run(): Promise<void> {
   const {eventName, action} = context
@@ -37,7 +37,7 @@ async function run(): Promise<void> {
   }
 
   // introduce a slight delay to guarantee approval occurs before merge
-  await wait(2000)
+  // await wait(2000)
 
   await octokit.rest.pulls.merge({
     owner,
