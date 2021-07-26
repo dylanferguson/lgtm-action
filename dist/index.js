@@ -1,85 +1,6 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 109:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __importDefault(__nccwpck_require__(186));
-const github_1 = __nccwpck_require__(438);
-const utils_1 = __nccwpck_require__(918);
-async function run() {
-    const { eventName, action } = github_1.context;
-    const { owner, repo } = github_1.context.repo;
-    const { token } = utils_1.getInputParams();
-    const octokit = github_1.getOctokit(token, { userAgent: 'dylanferguson/lgtm-action@v1' });
-    if (!utils_1.isSupportedEvent(eventName, action)) {
-        core_1.default.warning(`Event not supported: ${eventName}, action: ${action}`);
-        return;
-    }
-    const event = github_1.context.payload.pull_request;
-    await octokit.rest.pulls.createReview({
-        owner,
-        repo,
-        pull_number: event.number,
-        event: 'APPROVE',
-        body: 'LGTM!'
-    });
-    const { data: pullRequest } = await octokit.rest.pulls.get({
-        owner,
-        repo,
-        pull_number: event.number
-    });
-    if (!pullRequest.mergeable) {
-        core_1.default.warning('Pull request cannot be merged');
-        return;
-    }
-    // introduce a slight delay to guarantee approval occurs before merge
-    // await wait(2000)
-    await octokit.rest.pulls.merge({
-        owner,
-        repo,
-        pull_number: event.number
-    });
-}
-run().catch(err => {
-    core_1.default.setFailed(err.message);
-});
-
-
-/***/ }),
-
-/***/ 918:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = exports.isSupportedEvent = exports.getInputParams = void 0;
-const core_1 = __nccwpck_require__(186);
-function getInputParams() {
-    return {
-        token: core_1.getInput('token')
-    };
-}
-exports.getInputParams = getInputParams;
-function isSupportedEvent(event, action) {
-    return event === 'pull_request' && action === 'opened';
-}
-exports.isSupportedEvent = isSupportedEvent;
-async function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-exports.wait = wait;
-
-
-/***/ }),
-
 /***/ 351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -6350,18 +6271,93 @@ module.exports = require("zlib");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(109);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+// ESM COMPAT FLAG
+__nccwpck_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(186);
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __nccwpck_require__(438);
+;// CONCATENATED MODULE: ./src/utils.ts
+
+function getInputParams() {
+    return {
+        token: (0,core.getInput)('token')
+    };
+}
+function isSupportedEvent(event, action) {
+    return event === 'pull_request' && action === 'opened';
+}
+async function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+;// CONCATENATED MODULE: ./src/main.ts
+
+
+
+async function run() {
+    const eventName = github.context.eventName;
+    const event = github.context.payload;
+    const { owner, repo } = github.context.repo;
+    const { token } = getInputParams();
+    const octokit = (0,github.getOctokit)(token, { userAgent: 'dylanferguson/lgtm-action@v1' });
+    const action = event === null || event === void 0 ? void 0 : event.action;
+    if (!isSupportedEvent(eventName, action)) {
+        core.warning(`Event not supported: ${eventName}, action: ${action}`);
+        return;
+    }
+    await octokit.rest.pulls.createReview({
+        owner,
+        repo,
+        pull_number: event.number,
+        event: 'APPROVE',
+        body: 'LGTM!'
+    });
+    const { data: pullRequest } = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: event.number
+    });
+    if (!pullRequest.mergeable) {
+        core.warning('Pull request cannot be merged');
+        return;
+    }
+    // introduce a slight delay to guarantee approval occurs before merge
+    await wait(2000);
+    await octokit.rest.pulls.merge({
+        owner,
+        repo,
+        pull_number: event.number
+    });
+}
+run().catch(err => {
+    core.setFailed(err.message);
+});
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
