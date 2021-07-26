@@ -10,7 +10,7 @@ image:
 
 npm:
 	@ docker container run \
-		--name dev \
+		--name lgtm-action:dev \
 		--init \
 		--rm \
 		-t \
