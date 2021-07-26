@@ -14,15 +14,15 @@ const core_1 = __importDefault(__nccwpck_require__(186));
 const github_1 = __nccwpck_require__(438);
 const utils_1 = __nccwpck_require__(918);
 async function run() {
-    const eventName = github_1.context.eventName;
+    const { eventName, action } = github_1.context;
     const { owner, repo } = github_1.context.repo;
-    const event = github_1.context.payload.pull_request;
     const { token } = utils_1.getInputParams();
-    const octokit = github_1.getOctokit(token);
-    if (eventName !== 'pull_request' && event.action !== 'opened') {
-        core_1.default.warning(`Event not supported: ${eventName}, ${event.action}`);
+    const octokit = github_1.getOctokit(token, { userAgent: 'dylanferguson/lgtm-action@v1' });
+    if (!utils_1.isSupportedEvent(eventName, action)) {
+        core_1.default.warning(`Event not supported: ${eventName}, action: ${action}`);
         return;
     }
+    const event = github_1.context.payload.pull_request;
     await octokit.rest.pulls.createReview({
         owner,
         repo,
@@ -39,6 +39,8 @@ async function run() {
         core_1.default.warning('Pull request cannot be merged');
         return;
     }
+    // introduce a slight delay to guarantee approval occurs before merge
+    // await wait(2000)
     await octokit.rest.pulls.merge({
         owner,
         repo,
@@ -58,7 +60,7 @@ run().catch(err => {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getInputParams = void 0;
+exports.wait = exports.isSupportedEvent = exports.getInputParams = void 0;
 const core_1 = __nccwpck_require__(186);
 function getInputParams() {
     return {
@@ -66,6 +68,14 @@ function getInputParams() {
     };
 }
 exports.getInputParams = getInputParams;
+function isSupportedEvent(event, action) {
+    return event === 'pull_request' && action === 'opened';
+}
+exports.isSupportedEvent = isSupportedEvent;
+async function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+exports.wait = wait;
 
 
 /***/ }),
