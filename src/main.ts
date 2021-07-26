@@ -37,7 +37,7 @@ async function run(): Promise<void> {
   }
 
   // introduce a slight delay to guarantee approval occurs before merge
-  await wait(2000);
+  await wait(2000)
 
   await octokit.rest.pulls.merge({
     owner,

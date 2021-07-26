@@ -15,6 +15,6 @@ export function isSupportedEvent(event: string, action: string): boolean {
   return event === 'pull_request' && action === 'opened'
 }
 
-export function wait(ms: number) {
+export async function wait(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
